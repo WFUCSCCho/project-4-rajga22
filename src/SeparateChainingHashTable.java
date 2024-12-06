@@ -38,7 +38,15 @@ public class SeparateChainingHashTable<AnyType> {
      * @param x the item to insert.
      */
     public void insert(AnyType x) {
-        // FINISH ME
+        List<AnyType> whichList = theLists[myhash(x)];
+        if (!whichList.contains(x)) {
+            whichList.add(x);
+
+            // Rehash if the current size exceeds the table size
+            if (++currentSize > theLists.length) {
+                rehash();
+            }
+        }
     }
 
     /**
@@ -47,7 +55,11 @@ public class SeparateChainingHashTable<AnyType> {
      * @param x the item to remove.
      */
     public void remove(AnyType x) {
-        // FINISH ME
+        List<AnyType> whichList = theLists[myhash(x)];
+        if (whichList.contains(x)) {
+            whichList.remove(x);
+            currentSize--;
+        }
     }
 
     /**
@@ -57,14 +69,18 @@ public class SeparateChainingHashTable<AnyType> {
      * @return true if x is not found.
      */
     public boolean contains(AnyType x) {
-        // FINISH ME
+        List<AnyType> whichList = theLists[myhash(x)];
+        return whichList.contains(x);
     }
 
     /**
      * Make the hash table logically empty.
      */
     public void makeEmpty() {
-        // FINISH ME
+        for (List<AnyType> list : theLists) {
+            list.clear();
+        }
+        currentSize = 0;
     }
 
     /**
@@ -88,7 +104,21 @@ public class SeparateChainingHashTable<AnyType> {
     }
 
     private void rehash() {
-        // FINISH ME
+        List<AnyType>[] oldLists = theLists;
+
+        // Create new double-sized, empty table
+        theLists = new LinkedList[nextPrime(2 * theLists.length)];
+        for (int j = 0; j < theLists.length; j++) {
+            theLists[j] = new LinkedList<>();
+        }
+
+        // Copy table over
+        currentSize = 0;
+        for (List<AnyType> list : oldLists) {
+            for (AnyType item : list) {
+                insert(item);
+            }
+        }
     }
 
     private int myhash(AnyType x) {
@@ -147,5 +177,3 @@ public class SeparateChainingHashTable<AnyType> {
     }
 
 }
-
-
