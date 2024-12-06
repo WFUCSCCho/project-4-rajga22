@@ -27,7 +27,72 @@ public class Proj4 {
         // ignore first line
         inputFileNameScanner.nextLine();
 
-        // FINISH ME
+        // Read the dataset
+        ArrayList<String> dataset = new ArrayList<>();
+        for (int i = 0; i < numLines && inputFileNameScanner.hasNextLine(); i++) {
+            dataset.add(inputFileNameScanner.nextLine());
+        }
 
+        // Close the input file
+        inputFileNameScanner.close();
+
+        // Create sorted, shuffled, and reversed datasets
+        ArrayList<String> sortedDataset = new ArrayList<>(dataset);
+        Collections.sort(sortedDataset);
+
+        ArrayList<String> shuffledDataset = new ArrayList<>(dataset);
+        Collections.shuffle(shuffledDataset);
+
+        ArrayList<String> reversedDataset = new ArrayList<>(dataset);
+        Collections.sort(reversedDataset, Collections.reverseOrder());
+
+        // Initialize the hash table
+        SeparateChainingHashTable<String> hashTable = new SeparateChainingHashTable<>();
+
+        // Time and perform operations for each dataset
+        timeOperations(hashTable, sortedDataset, "Sorted");
+        timeOperations(hashTable, shuffledDataset, "Shuffled");
+        timeOperations(hashTable, reversedDataset, "Reversed");
+    }
+
+    private static void timeOperations(SeparateChainingHashTable<String> hashTable, ArrayList<String> dataset, String type) throws IOException {
+        long startTime, endTime;
+
+        // Insert
+        startTime = System.nanoTime();
+        for (String item : dataset) {
+            hashTable.insert(item);
+        }
+        endTime = System.nanoTime();
+        long insertTime = endTime - startTime;
+
+        // Search
+        startTime = System.nanoTime();
+        for (String item : dataset) {
+            hashTable.contains(item);
+        }
+        endTime = System.nanoTime();
+        long searchTime = endTime - startTime;
+
+        // Delete
+        startTime = System.nanoTime();
+        for (String item : dataset) {
+            hashTable.remove(item);
+        }
+        endTime = System.nanoTime();
+        long deleteTime = endTime - startTime;
+
+        // Output results to console
+        System.out.printf("%s Dataset: Insert Time = %d ns, Search Time = %d ns, Delete Time = %d ns\n",
+                type, insertTime, searchTime, deleteTime);
+
+        // Append results to analysis.txt
+        try (FileOutputStream fos = new FileOutputStream("analysis.txt", true)) {
+            String result = String.format("%s,%d,%d,%d\n", type, insertTime, searchTime, deleteTime);
+            fos.write(result.getBytes());
+        }
+
+        // Ensure the hash table is empty
+        hashTable.makeEmpty();
     }
 }
